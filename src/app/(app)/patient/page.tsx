@@ -42,7 +42,7 @@ export default function PatientPage() {
   return (
     <>
       <Link href="/patients" className="mb-4 inline-block text-sm text-muted hover:text-fg">
-        ← {t("backToPatients")}
+        <span className="inline-block rtl:rotate-180">←</span> {t("backToPatients")}
       </Link>
       <PageHeader
         title={patient.fullName ?? ""}

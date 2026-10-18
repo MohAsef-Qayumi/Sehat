@@ -2,9 +2,13 @@
 
 import { createContext, useContext, useEffect, useMemo, useSyncExternalStore } from "react"
 import { en, type MessageKey, type Messages } from "./en"
+import { fa } from "./fa"
+import { ps } from "./ps"
 
 export const locales = {
   en: { label: "English", dir: "ltr", messages: en },
+  fa: { label: "دری", dir: "rtl", messages: fa },
+  ps: { label: "پښتو", dir: "rtl", messages: ps },
 } as const satisfies Record<string, { label: string; dir: "ltr" | "rtl"; messages: Messages }>
 
 export type Locale = keyof typeof locales
