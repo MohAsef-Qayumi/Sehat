@@ -1,6 +1,6 @@
 "use client"
 
-import { useParams, useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useApp } from "@/client/app-context"
 import { usePatient } from "@/client/hooks"
 import { emptyPatient, PatientForm } from "@/components/patient-form"
@@ -8,7 +8,7 @@ import { Card, Empty, PageHeader } from "@/components/ui"
 import { useI18n } from "@/lib/i18n"
 
 export default function EditPatientPage() {
-  const { id } = useParams<{ id: string }>()
+  const id = useSearchParams().get("id") ?? ""
   const { write } = useApp()
   const { t } = useI18n()
   const router = useRouter()
@@ -28,7 +28,7 @@ export default function EditPatientPage() {
           onSubmit={async ({ deleted, ...fields }) => {
             // Only changed fields get new timestamps, so concurrent edits elsewhere survive.
             await write("patients", id, fields)
-            router.replace(`/patients/${id}`)
+            router.replace(`/patient?id=${id}`)
           }}
         />
       </Card>

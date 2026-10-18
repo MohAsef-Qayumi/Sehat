@@ -1,6 +1,6 @@
 "use client"
 
-import { useParams, useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useApp } from "@/client/app-context"
 import { today, usePatient, useQueue } from "@/client/hooks"
 import { Empty, PageHeader } from "@/components/ui"
@@ -8,7 +8,7 @@ import { VisitForm } from "@/components/visit-form"
 import { useI18n } from "@/lib/i18n"
 
 export default function NewVisitPage() {
-  const { id } = useParams<{ id: string }>()
+  const id = useSearchParams().get("patient") ?? ""
   const { t } = useI18n()
   const { create, write, session } = useApp()
   const router = useRouter()
@@ -47,7 +47,7 @@ export default function NewVisitPage() {
           // Seeing the patient completes their place in today's queue.
           const entry = queue?.find((q) => q.patientId === id && q.status !== "done" && q.status !== "left")
           if (entry) await write("queue", entry.id, { status: "done" })
-          router.replace(`/patients/${id}`)
+          router.replace(`/patient?id=${id}`)
         }}
       />
     </>

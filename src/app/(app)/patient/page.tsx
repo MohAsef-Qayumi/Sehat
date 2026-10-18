@@ -1,14 +1,14 @@
 "use client"
 
 import Link from "next/link"
-import { useParams, useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useApp } from "@/client/app-context"
 import { ageFrom, today, usePatient, useQueue, useVisits } from "@/client/hooks"
 import { Badge, Button, Card, Empty, PageHeader } from "@/components/ui"
 import { useI18n } from "@/lib/i18n"
 
 export default function PatientPage() {
-  const { id } = useParams<{ id: string }>()
+  const id = useSearchParams().get("id") ?? ""
   const { t } = useI18n()
   const { create, write, store } = useApp()
   const router = useRouter()
@@ -60,7 +60,7 @@ export default function PatientPage() {
                 {t("addToQueue")}
               </Button>
             )}
-            <Link href={`/patients/${id}/visits/new`}>
+            <Link href={`/visit/new?patient=${id}`}>
               <Button>{t("newVisit")}</Button>
             </Link>
           </>
@@ -95,7 +95,7 @@ export default function PatientPage() {
             )}
           </dl>
           <div className="mt-5 flex gap-2 border-t border-line pt-4">
-            <Link href={`/patients/${id}/edit`}>
+            <Link href={`/patient/edit?id=${id}`}>
               <Button variant="secondary" size="sm">
                 {t("edit")}
               </Button>
@@ -121,12 +121,12 @@ export default function PatientPage() {
                     </p>
                   </div>
                   <div className="flex shrink-0 gap-1">
-                    <Link href={`/visits/${v.id}/edit`}>
+                    <Link href={`/visit/edit?id=${v.id}`}>
                       <Button variant="ghost" size="sm">
                         {t("edit")}
                       </Button>
                     </Link>
-                    <Link href={`/visits/${v.id}/print`}>
+                    <Link href={`/visit/print?id=${v.id}`}>
                       <Button variant="ghost" size="sm">
                         {t("print")}
                       </Button>

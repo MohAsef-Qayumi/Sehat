@@ -1,0 +1,10 @@
+{
+  "name": "Sehat",
+  "short_name": "Sehat",
+  "description": "Offline-first patient records for small clinics.",
+  "start_url": "/queue",
+  "display": "standalone",
+  "background_color": "#f7f7f5",
+  "theme_color": "#0f766e",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

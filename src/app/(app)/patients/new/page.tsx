@@ -21,7 +21,7 @@ export default function NewPatientPage() {
           onCancel={() => router.back()}
           onSubmit={async (patient) => {
             const id = await create("patients", patient)
-            router.replace(`/patients/${id}`)
+            router.replace(`/patient?id=${id}`)
           }}
         />
       </Card>

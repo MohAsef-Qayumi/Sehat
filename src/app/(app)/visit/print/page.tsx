@@ -1,13 +1,13 @@
 "use client"
 
-import { useParams, useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useApp } from "@/client/app-context"
 import { ageFrom, usePatient, useVisit } from "@/client/hooks"
 import { Button, Empty } from "@/components/ui"
 import { useI18n } from "@/lib/i18n"
 
 export default function PrintVisitPage() {
-  const { id } = useParams<{ id: string }>()
+  const id = useSearchParams().get("id") ?? ""
   const { t } = useI18n()
   const { session } = useApp()
   const router = useRouter()

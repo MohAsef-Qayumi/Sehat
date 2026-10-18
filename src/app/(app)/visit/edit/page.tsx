@@ -1,6 +1,6 @@
 "use client"
 
-import { useParams, useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useApp } from "@/client/app-context"
 import { usePatient, useVisit } from "@/client/hooks"
 import { Empty, PageHeader } from "@/components/ui"
@@ -9,7 +9,7 @@ import type { Visit } from "@/lib/domain"
 import { useI18n } from "@/lib/i18n"
 
 export default function EditVisitPage() {
-  const { id } = useParams<{ id: string }>()
+  const id = useSearchParams().get("id") ?? ""
   const { t } = useI18n()
   const { write } = useApp()
   const router = useRouter()
@@ -27,7 +27,7 @@ export default function EditVisitPage() {
         onCancel={() => router.back()}
         onSubmit={async ({ deleted, ...fields }) => {
           await write("visits", id, fields)
-          router.replace(`/patients/${visit.patientId}`)
+          router.replace(`/patient?id=${visit.patientId}`)
         }}
       />
     </>

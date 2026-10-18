@@ -37,7 +37,7 @@ export default function PatientsPage() {
           {patients.map((p) => {
             const age = ageFrom(p.birthYear)
             return (
-              <Link key={p.id} href={`/patients/${p.id}`} className="flex items-center gap-4 px-4 py-3 hover:bg-bg">
+              <Link key={p.id} href={`/patient?id=${p.id}`} className="flex items-center gap-4 px-4 py-3 hover:bg-bg">
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{p.fullName}</p>
                   <p className="truncate text-sm text-muted">

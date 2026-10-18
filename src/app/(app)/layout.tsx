@@ -1,5 +1,6 @@
 "use client"
 
+import { Suspense } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { AppProvider, useApp } from "@/client/app-context"
@@ -27,9 +28,9 @@ function Shell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
 
   const links = [
-    { href: "/queue", label: t("queue") },
-    { href: "/patients", label: t("patients") },
-    ...(session.role === "admin" ? [{ href: "/staff", label: t("staff") }] : []),
+    { href: "/queue", label: t("queue"), section: ["/queue"] },
+    { href: "/patients", label: t("patients"), section: ["/patient", "/visit"] },
+    ...(session.role === "admin" ? [{ href: "/staff", label: t("staff"), section: ["/staff"] }] : []),
   ]
 
   return (
@@ -46,7 +47,7 @@ function Shell({ children }: { children: React.ReactNode }) {
                 href={link.href}
                 className={cx(
                   "rounded-md px-3 py-1.5 text-sm",
-                  pathname.startsWith(link.href) ? "bg-bg font-medium text-fg" : "text-muted hover:text-fg",
+                  link.section.some((prefix) => pathname.startsWith(prefix)) ? "bg-bg font-medium text-fg" : "text-muted hover:text-fg",
                 )}
               >
                 {link.label}
@@ -65,7 +66,9 @@ function Shell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-5xl px-4 py-8">{children}</main>
+      <main className="mx-auto max-w-5xl px-4 py-8">
+        <Suspense>{children}</Suspense>
+      </main>
     </div>
   )
 }
