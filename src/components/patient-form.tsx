@@ -39,8 +39,8 @@ export function PatientForm({
     const year = value("birthYear")
     setBusy(true)
     try {
+      // Built field by field so nothing outside the schema (like the record id) leaks into the data.
       await onSubmit({
-        ...initial,
         fullName: value("fullName"),
         fatherName: value("fatherName"),
         sex: value("sex") as Patient["sex"],
@@ -49,6 +49,7 @@ export function PatientForm({
         address: value("address"),
         allergies: value("allergies"),
         notes: value("notes"),
+        deleted: initial.deleted,
       })
     } finally {
       setBusy(false)

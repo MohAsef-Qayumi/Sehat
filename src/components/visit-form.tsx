@@ -32,7 +32,9 @@ export function VisitForm({
     setBusy(true)
     try {
       await onSubmit({
-        ...initial,
+        patientId: initial.patientId,
+        doctorName: initial.doctorName,
+        deleted: initial.deleted,
         date: text("date"),
         complaint: text("complaint"),
         bloodPressure: text("bloodPressure"),
