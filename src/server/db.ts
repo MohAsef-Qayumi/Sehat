@@ -26,9 +26,12 @@ async function connect(): Promise<Db> {
   }
 
   const { PGlite } = await import("@electric-sql/pglite")
+  const dir = process.env.PGLITE_DIR ?? "./.data/pglite"
+  const { mkdirSync } = await import("node:fs")
+  mkdirSync(dir, { recursive: true })
   const { drizzle } = await import("drizzle-orm/pglite")
   const { migrate } = await import("drizzle-orm/pglite/migrator")
-  const db = drizzle(new PGlite(process.env.PGLITE_DIR ?? "./.data/pglite"), { schema })
+  const db = drizzle(new PGlite(dir), { schema })
   await migrate(db, { migrationsFolder: MIGRATIONS })
   return db as unknown as Db
 }
