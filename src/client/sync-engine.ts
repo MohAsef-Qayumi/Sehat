@@ -36,6 +36,7 @@ export const httpTransport: Transport = async (request) => {
  */
 export class SyncEngine {
   private running: Promise<void> | null = null
+  private timer: ReturnType<typeof setTimeout> | undefined
   private again = false
   private listeners = new Set<(status: SyncStatus) => void>()
   private lastSyncedAt: number | null = null
@@ -51,6 +52,12 @@ export class SyncEngine {
     this.listeners.add(listener)
     listener(this.status)
     return () => this.listeners.delete(listener)
+  }
+
+  /** Sync shortly, coalescing bursts of local edits into one request. */
+  syncSoon(delayMs = 800) {
+    clearTimeout(this.timer)
+    this.timer = setTimeout(() => void this.sync(), delayMs)
   }
 
   sync(): Promise<void> {

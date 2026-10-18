@@ -19,6 +19,7 @@
     "@electric-sql/pglite": "^0.5.10",
     "bcryptjs": "^3.0.3",
     "dexie": "^4.4.6",
+    "dexie-react-hooks": "^4.4.0",
     "drizzle-orm": "^0.45.4",
     "jose": "^6.2.12",
     "lucide-react": "^1.59.0",
