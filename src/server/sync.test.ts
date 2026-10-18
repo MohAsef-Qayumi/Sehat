@@ -77,6 +77,17 @@ describe("server sync", () => {
     expect(pulled.changes).toEqual([])
   })
 
+  it("applies valid changes even when another change in the batch is invalid", async () => {
+    const clock = new HybridClock("a", () => NOW)
+    const good = patientChange(clock, { fullName: "Good" })
+    const bad = { ...patientChange(clock, { fullName: "Bad" }), id: "8d2f6b1e-1111-4a0b-9c3d-000000000001", data: { id: "x" }, clocks: { id: good.clocks.fullName! } }
+
+    const result = await sync(db, clinicId, { since: 0, changes: [bad, good] }, NOW)
+
+    expect(result.changes.map((c) => c.data.fullName)).toEqual(["Good"])
+    expect(result.rejected).toEqual([{ collection: "patients", id: bad.id, reason: "clocks.id: Unknown field" }])
+  })
+
   it("rejects writes from a device whose clock is far ahead", async () => {
     const future = new HybridClock("bad", () => NOW + 24 * 60 * 60 * 1000)
     await expect(sync(db, clinicId, { since: 0, changes: [patientChange(future, { fullName: "X" })] }, NOW)).rejects.toBeInstanceOf(

@@ -32,7 +32,7 @@ export function AppProvider({ children, fallback }: { children: React.ReactNode;
   const router = useRouter()
   const session = useSyncExternalStore(subscribeSession, cachedSession, () => null)
   const [local, setLocal] = useState<{ store: Store; engine: SyncEngine } | null>(null)
-  const [status, setStatus] = useState<SyncStatus>({ state: "idle", lastSyncedAt: null, pending: 0 })
+  const [status, setStatus] = useState<SyncStatus>({ state: "idle", lastSyncedAt: null, pending: 0, rejected: 0 })
 
   // The cached session lets the app open offline; confirm it with the server when reachable.
   useEffect(() => {

@@ -1,12 +1,14 @@
 import { collectionNames, type CollectionData, type CollectionName } from "@/lib/domain"
 import { compareHlc, HybridClock, type Hlc } from "@/lib/sync/hlc"
 import { applyEdit, latestClock, merge, type Versioned } from "@/lib/sync/merge"
-import type { Change } from "@/lib/sync/protocol"
+import type { Change, Rejection } from "@/lib/sync/protocol"
 import type { LocalDb, LocalRecord } from "./db"
 
 const NODE_KEY = "node"
 const CLOCK_KEY = "lastClock"
 const CURSOR_KEY = "cursor"
+const REJECTED_KEY = "rejected"
+const MAX_REJECTED_KEPT = 50
 
 function randomNode() {
   const bytes = crypto.getRandomValues(new Uint8Array(8))
@@ -71,8 +73,12 @@ export class Store {
     return { changes, revs }
   }
 
-  /** Merge a page from the server and clear outbox entries that were not edited meanwhile. */
-  async applyServerPage(changes: Change[], cursor: number, acknowledged: Map<string, number>) {
+  /**
+   * Merge a page from the server and clear outbox entries that were not edited
+   * meanwhile. Rejected changes leave the outbox too (retrying can't fix them)
+   * and are kept for inspection; the local data itself is untouched.
+   */
+  async applyServerPage(changes: Change[], cursor: number, acknowledged: Map<string, number>, rejected: Rejection[] = []) {
     const tables = collectionNames.map((c) => this.db.records(c))
     await this.db.transaction("rw", [...tables, this.db.outbox, this.db.meta], async () => {
       let newest: Hlc | undefined
@@ -93,8 +99,16 @@ export class Store {
         const entry = await this.db.outbox.get(key)
         if (entry && entry.rev === rev) await this.db.outbox.delete(key)
       }
+      if (rejected.length > 0) {
+        const previous = ((await this.db.meta.get(REJECTED_KEY))?.value as Rejection[] | undefined) ?? []
+        await this.db.meta.put({ key: REJECTED_KEY, value: [...previous, ...rejected].slice(-MAX_REJECTED_KEPT) })
+      }
       await this.db.meta.put({ key: CURSOR_KEY, value: cursor })
     })
+  }
+
+  async rejected(): Promise<Rejection[]> {
+    return ((await this.db.meta.get(REJECTED_KEY))?.value as Rejection[] | undefined) ?? []
   }
 
   async cursor(): Promise<number> {

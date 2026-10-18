@@ -86,6 +86,20 @@ describe("offline-first clients", () => {
     }
   })
 
+  it("sets aside a change the server rejects instead of retrying it forever", async () => {
+    const reception = await device("reception", Date.now())
+    const good = await reception.store.create("patients", patient("Valid"))
+    // Simulate a corrupt local record, e.g. written by an older app version.
+    await reception.store.write("patients", crypto.randomUUID(), { unknownField: 1 } as never)
+
+    await reception.engine.sync()
+
+    expect(reception.engine.status).toMatchObject({ state: "idle", pending: 0, rejected: 1 })
+    const other = await device("other", Date.now())
+    await other.engine.sync()
+    expect((await other.store.db.patients.get(good.id))?.data.fullName).toBe("Valid")
+  })
+
   it("does not drop an edit made while a sync is in flight", async () => {
     const reception = await device("reception", Date.now())
     const { id } = await reception.store.create("patients", patient("A"))

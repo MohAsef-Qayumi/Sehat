@@ -20,10 +20,11 @@ export function SyncIndicator() {
             : t("syncOnline")
 
   const tone =
-    status.state === "error" ? "bg-danger" : status.state === "offline" || status.pending > 0 ? "bg-warn" : "bg-brand"
+    status.state === "error" || status.rejected > 0 ? "bg-danger" : status.state === "offline" || status.pending > 0 ? "bg-warn" : "bg-brand"
 
   const detail = [
     status.state === "error" ? status.message : null,
+    status.rejected > 0 ? t("syncRejected", { count: status.rejected }) : null,
     status.pending > 0 && status.state !== "idle" ? t("syncPending", { count: status.pending }) : null,
     t("lastSynced", { time: status.lastSyncedAt ? new Date(status.lastSyncedAt).toLocaleTimeString() : t("never") }),
   ]

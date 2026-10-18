@@ -32,16 +32,23 @@ export const changeSchema = z
     }
   })
 
+/**
+ * Changes are validated one by one (see the sync service) rather than as a
+ * batch, so a single bad record can't block the rest of a device's outbox.
+ */
 export const syncRequestSchema = z.object({
   since: z.number().int().min(0),
-  changes: z.array(changeSchema).max(MAX_PUSH),
+  changes: z.array(z.unknown()).max(MAX_PUSH),
 })
 
 export type Change = z.infer<typeof changeSchema>
-export type SyncRequest = z.infer<typeof syncRequestSchema>
+export type SyncRequest = { since: number; changes: Change[] }
+
+export type Rejection = { collection: string; id: string; reason: string }
 
 export type SyncResponse = {
   changes: Change[]
+  rejected: Rejection[]
   cursor: number
   hasMore: boolean
   serverTime: number

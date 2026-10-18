@@ -31,6 +31,7 @@ export const en = {
   syncError: "Sync error",
   syncPending: "{count} unsynced",
   syncNow: "Sync now",
+  syncRejected: "{count} changes were rejected by the server",
   lastSynced: "Last synced {time}",
   never: "never",
 

@@ -12,11 +12,11 @@ export class HttpError extends Error {
   }
 }
 
+type StatusBase = { lastSyncedAt: number | null; pending: number; rejected: number }
+
 export type SyncStatus =
-  | { state: "idle"; lastSyncedAt: number | null; pending: number }
-  | { state: "syncing"; lastSyncedAt: number | null; pending: number }
-  | { state: "offline"; lastSyncedAt: number | null; pending: number }
-  | { state: "error"; lastSyncedAt: number | null; pending: number; message: string }
+  | ({ state: "idle" | "syncing" | "offline" } & StatusBase)
+  | ({ state: "error"; message: string } & StatusBase)
 
 export const httpTransport: Transport = async (request) => {
   const res = await fetch("/api/sync", {
@@ -40,7 +40,7 @@ export class SyncEngine {
   private again = false
   private listeners = new Set<(status: SyncStatus) => void>()
   private lastSyncedAt: number | null = null
-  status: SyncStatus = { state: "idle", lastSyncedAt: null, pending: 0 }
+  status: SyncStatus = { state: "idle", lastSyncedAt: null, pending: 0, rejected: 0 }
 
   constructor(
     private readonly store: Store,
@@ -83,7 +83,7 @@ export class SyncEngine {
       for (let guard = 0; guard < 1000; guard++) {
         const { changes, revs } = await this.store.pending(MAX_PUSH)
         const response = await this.transport({ since: await this.store.cursor(), changes })
-        await this.store.applyServerPage(response.changes, response.cursor, revs)
+        await this.store.applyServerPage(response.changes, response.cursor, revs, response.rejected)
         if (!response.hasMore && (await this.store.pendingCount()) === 0) break
         if (!response.hasMore && changes.length === 0) break
       }
@@ -100,7 +100,12 @@ export class SyncEngine {
   }
 
   private async emit(partial: { state: "idle" | "syncing" | "offline" } | { state: "error"; message: string }) {
-    this.status = { ...partial, lastSyncedAt: this.lastSyncedAt, pending: await this.store.pendingCount() } as SyncStatus
+    this.status = {
+      ...partial,
+      lastSyncedAt: this.lastSyncedAt,
+      pending: await this.store.pendingCount(),
+      rejected: (await this.store.rejected()).length,
+    }
     for (const listener of this.listeners) listener(this.status)
   }
 }
