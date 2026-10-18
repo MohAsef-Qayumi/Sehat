@@ -2,6 +2,8 @@
 
 **Offline-first patient records for small clinics.**
 
+![Two devices edit the same patient while offline, then merge both changes when the connection returns](docs/offline-sync.gif)
+
 Many clinics in Afghanistan and Pakistan still run on paper, because internet and power cuts make online software unreliable. Sehat keeps working with no connection and syncs automatically when the connection returns, merging edits made on different devices without losing data.
 
 ## Features
